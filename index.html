@@ -43,6 +43,10 @@
       font-size: 16px;
       cursor: pointer;
     }
+    button:disabled {
+      background-color: #6c757d;
+      cursor: not-allowed;
+    }
     button:hover {
       background-color: #218838;
     }
@@ -54,6 +58,7 @@
   </style>
 
   <script>
+    // Firebase configuration
     const firebaseConfig = {
       apiKey: "AIzaSyDST_3g-pgWFdnJ-LWeZQAD9uV9muFKFMU",
       authDomain: "quick-read-6bf52.firebaseapp.com",
@@ -63,17 +68,22 @@
       appId: "1:864661348474:android:abced3db35844df7a55bc3"
     };
 
+    // Initialize Firebase
     firebase.initializeApp(firebaseConfig);
+
     let db;
 
+    // Function to initialize Firestore and enable the submit button
     firebase.firestore().enablePersistence()
       .then(() => {
         db = firebase.firestore();
-        console.log("Firebase Firestore initialized and persistence enabled.");
+        console.log("Firestore initialized with persistence.");
+        document.getElementById("submit-button").disabled = false; // Enable button
       })
       .catch((err) => {
-        console.error("Error initializing Firestore with persistence:", err);
-        db = firebase.firestore();
+        console.error("Persistence failed:", err);
+        db = firebase.firestore(); // Initialize without persistence if it fails
+        document.getElementById("submit-button").disabled = false; // Enable button
       });
 
     function getUniqueID() {
@@ -100,6 +110,7 @@
       try {
         console.log(`Trying to access document with ID: ${uniqueID}`);
         
+        // Check if db is initialized
         if (!db) {
           throw new Error("Firestore is not initialized yet.");
         }
@@ -138,7 +149,7 @@
     <div id="pin-section">
       <label>Enter PIN to Access Data</label>
       <input type="text" id="pin-input" placeholder="Enter PIN" maxlength="6">
-      <button onclick="verifyPIN()">Submit</button>
+      <button id="submit-button" onclick="verifyPIN()" disabled>Submit</button>
     </div>
     <div id="message" class="message"></div>
   </div>
