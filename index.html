@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Quick Read - Secure Access</title>
+  
+  <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-firestore.js"></script>
+  
+  <style>
+    body {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+      background-color: #1b1b1b;
+      color: #fff;
+      font-family: Arial, sans-serif;
+    }
+    .container {
+      text-align: center;
+      max-width: 300px;
+    }
+    .qr-code {
+      width: 100%;
+      height: auto;
+      margin-bottom: 20px;
+    }
+    input[type="text"] {
+      padding: 10px;
+      font-size: 16px;
+      width: 100%;
+      margin-bottom: 10px;
+    }
+    button {
+      padding: 15px;
+      width: 100%;
+      background-color: #28a745;
+      color: white;
+      border: none;
+      font-size: 16px;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #218838;
+    }
+    .message {
+      margin-top: 20px;
+      font-size: 14px;
+      color: #ffdddd;
+    }
+  </style>
+
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyDST_3g-pgWFdnJ-LWeZQAD9uV9muFKFMU",
+      authDomain: "quick-read-6bf52.firebaseapp.com",
+      projectId: "quick-read-6bf52",
+      storageBucket: "quick-read-6bf52.appspot.com",
+      messagingSenderId: "864661348474",
+      appId: "1:864661348474:android:abced3db35844df7a55bc3"
+    };
+
+    const app = firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore(app);
+
+    function getUniqueID() {
+      const urlParams = new URLSearchParams(window.location.search);
+      return urlParams.get('id');
+    }
+
+    async function verifyPIN() {
+      const uniqueID = getUniqueID();
+      const pinInput = document.getElementById('pin-input').value.trim();
+      const messageDiv = document.getElementById('message');
+
+      if (!uniqueID) {
+        messageDiv.textContent = "Unique ID is missing in the URL.";
+        return;
+      }
+
+      if (pinInput === "") {
+        messageDiv.textContent = "Please enter a PIN.";
+        return;
+      }
+
+      messageDiv.textContent = "Retrieving data...";
+      try {
+        const docRef = db.collection("QRData").doc(uniqueID);
+        const docSnap = await docRef.get();
+
+        if (!docSnap.exists) {
+          messageDiv.textContent = "No access data found for this ID.";
+          return;
+        }
+
+        const storedPin = docSnap.data().pin?.trim();
+        const data = docSnap.data();
+
+        if (pinInput === storedPin) {
+          messageDiv.textContent = `Access granted! Data: ${JSON.stringify(data)}`;
+          document.getElementById('pin-section').style.display = 'none';
+        } else {
+          messageDiv.textContent = "Invalid PIN. Try again.";
+        }
+      } catch (error) {
+        console.error("Error accessing document:", error);
+        messageDiv.textContent = "Error retrieving data. Please try again.";
+      }
+    }
+  </script>
+</head>
+
+<body>
+  <div class="container">
+    <h1>Welcome to Quick Read</h1>
+    <img src="Da.jpg" alt="QR Code" class="qr-code">
+    <div id="pin-section">
+      <label>Enter PIN to Access Data</label>
+      <input type="text" id="pin-input" placeholder="Enter PIN" maxlength="6">
+      <button onclick="verifyPIN()">Submit</button>
+    </div>
+    <div id="message" class="message"></div>
+  </div>
+</body>
+</html>
