@@ -5,8 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Quick Read - Secure Access</title>
   
-  <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-firestore.js"></script>
+  <!-- Firebase SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-firestore-compat.js"></script>
   
   <style>
     body {
@@ -58,6 +59,7 @@
   </style>
 
   <script>
+    // Firebase configuration
     const firebaseConfig = {
       apiKey: "AIzaSyDST_3g-pgWFdnJ-LWeZQAD9uV9muFKFMU",
       authDomain: "quick-read-6bf52.firebaseapp.com",
@@ -67,13 +69,12 @@
       appId: "1:864661348474:android:abced3db35844df7a55bc3"
     };
 
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.0.0/firebase-app.js";
-    import { getFirestore, enableIndexedDbPersistence, doc, getDoc } from "https://www.gstatic.com/firebasejs/9.0.0/firebase-firestore.js";
+    // Initialize Firebase with compatibility mode
+    firebase.initializeApp(firebaseConfig);
 
-    const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
-
-    enableIndexedDbPersistence(db)
+    // Initialize Firestore and enable offline persistence
+    const db = firebase.firestore();
+    db.enablePersistence()
       .then(() => {
         console.log("Firestore initialized with persistence.");
         document.getElementById("submit-button").disabled = false;
@@ -83,11 +84,13 @@
         document.getElementById("submit-button").disabled = false;
       });
 
+    // Retrieve the unique ID from the URL
     function getUniqueID() {
       const params = new URLSearchParams(window.location.search);
       return params.get('id');
     }
 
+    // Verify the PIN
     async function verifyPIN() {
       const uniqueID = getUniqueID();
       const pinInput = document.getElementById('pin-input').value.trim();
@@ -107,10 +110,10 @@
       try {
         console.log(`Trying to access document with ID: ${uniqueID}`);
         
-        const docRef = doc(db, "QRData", uniqueID);
-        const docSnap = await getDoc(docRef);
+        const docRef = db.collection("QRData").doc(uniqueID);
+        const docSnap = await docRef.get();
 
-        if (!docSnap.exists()) {
+        if (!docSnap.exists) {
           messageDiv.textContent = "No access data found for this ID.";
           return;
         }
