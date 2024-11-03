@@ -56,6 +56,24 @@
       font-size: 14px;
       color: #ffdddd;
     }
+    /* Add styles for results list */
+    .result-list {
+      margin-top: 20px;
+      font-size: 16px;
+      color: #ffffff;
+      text-align: left;
+      padding: 10px;
+      background-color: #333;
+      border-radius: 8px;
+    }
+    .result-list li {
+      margin: 5px 0;
+      padding: 5px;
+      border-bottom: 1px solid #555;
+    }
+    .result-list li:last-child {
+      border-bottom: none;
+    }
   </style>
 
   <script>
@@ -90,7 +108,7 @@
       return params.get('id');
     }
 
-    // Verify the PIN
+    // Verify the PIN and display results
     async function verifyPIN() {
       const uniqueID = getUniqueID();
       const pinInput = document.getElementById('pin-input').value.trim();
@@ -121,11 +139,19 @@
         const storedPin = docSnap.data().pin?.trim();
         const data = docSnap.data();
 
-        console.log(`Retrieved data: ${JSON.stringify(data)}`);
-
         if (pinInput === storedPin) {
-          messageDiv.textContent = `Access granted! Data: ${JSON.stringify(data)}`;
+          messageDiv.textContent = "";  // Clear message
           document.getElementById('pin-section').style.display = 'none';
+
+          // Display data as list
+          const resultList = document.createElement("ul");
+          resultList.className = "result-list";
+          for (const key in data) {
+            const listItem = document.createElement("li");
+            listItem.textContent = `${key.charAt(0).toUpperCase() + key.slice(1)}: ${data[key]}`;
+            resultList.appendChild(listItem);
+          }
+          document.getElementById("result-container").appendChild(resultList);
         } else {
           messageDiv.textContent = "Invalid PIN. Try again.";
         }
@@ -147,6 +173,7 @@
       <button id="submit-button" onclick="verifyPIN()" disabled>Submit</button>
     </div>
     <div id="message" class="message"></div>
+    <div id="result-container"></div>
   </div>
 </body>
 </html>
