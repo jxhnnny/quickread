@@ -58,7 +58,6 @@
   </style>
 
   <script>
-    // Firebase configuration
     const firebaseConfig = {
       apiKey: "AIzaSyDST_3g-pgWFdnJ-LWeZQAD9uV9muFKFMU",
       authDomain: "quick-read-6bf52.firebaseapp.com",
@@ -68,22 +67,20 @@
       appId: "1:864661348474:android:abced3db35844df7a55bc3"
     };
 
-    // Initialize Firebase
-    firebase.initializeApp(firebaseConfig);
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.0.0/firebase-app.js";
+    import { getFirestore, enableIndexedDbPersistence, doc, getDoc } from "https://www.gstatic.com/firebasejs/9.0.0/firebase-firestore.js";
 
-    let db;
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
 
-    // Function to initialize Firestore and enable the submit button
-    firebase.firestore().enablePersistence()
+    enableIndexedDbPersistence(db)
       .then(() => {
-        db = firebase.firestore();
         console.log("Firestore initialized with persistence.");
-        document.getElementById("submit-button").disabled = false; // Enable button
+        document.getElementById("submit-button").disabled = false;
       })
       .catch((err) => {
         console.error("Persistence failed:", err);
-        db = firebase.firestore(); // Initialize without persistence if it fails
-        document.getElementById("submit-button").disabled = false; // Enable button
+        document.getElementById("submit-button").disabled = false;
       });
 
     function getUniqueID() {
@@ -110,15 +107,10 @@
       try {
         console.log(`Trying to access document with ID: ${uniqueID}`);
         
-        // Check if db is initialized
-        if (!db) {
-          throw new Error("Firestore is not initialized yet.");
-        }
+        const docRef = doc(db, "QRData", uniqueID);
+        const docSnap = await getDoc(docRef);
 
-        const docRef = db.collection("QRData").doc(uniqueID);
-        const docSnap = await docRef.get();
-
-        if (!docSnap.exists) {
+        if (!docSnap.exists()) {
           messageDiv.textContent = "No access data found for this ID.";
           return;
         }
