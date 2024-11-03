@@ -54,62 +54,48 @@
   </style>
 
   <script>
-    const firebaseConfig = {
-      apiKey: "AIzaSyDST_3g-pgWFdnJ-LWeZQAD9uV9muFKFMU",
-      authDomain: "quick-read-6bf52.firebaseapp.com",
-      projectId: "quick-read-6bf52",
-      storageBucket: "quick-read-6bf52.appspot.com",
-      messagingSenderId: "864661348474",
-      appId: "1:864661348474:android:abced3db35844df7a55bc3"
-    };
-
-    const app = firebase.initializeApp(firebaseConfig);
-    const db = firebase.firestore(app);
-
-    function getUniqueID() {
-      const urlParams = new URLSearchParams(window.location.search);
-      return urlParams.get('id');
-    }
-
     async function verifyPIN() {
-      const uniqueID = getUniqueID();
-      const pinInput = document.getElementById('pin-input').value.trim();
-      const messageDiv = document.getElementById('message');
+  const uniqueID = getUniqueID();
+  const pinInput = document.getElementById('pin-input').value.trim();
+  const messageDiv = document.getElementById('message');
 
-      if (!uniqueID) {
-        messageDiv.textContent = "Unique ID is missing in the URL.";
-        return;
-      }
+  if (!uniqueID) {
+    messageDiv.textContent = "Unique ID is missing in the URL.";
+    return;
+  }
 
-      if (pinInput === "") {
-        messageDiv.textContent = "Please enter a PIN.";
-        return;
-      }
+  if (pinInput === "") {
+    messageDiv.textContent = "Please enter a PIN.";
+    return;
+  }
 
-      messageDiv.textContent = "Retrieving data...";
-      try {
-        const docRef = db.collection("QRData").doc(uniqueID);
-        const docSnap = await docRef.get();
+  messageDiv.textContent = "Retrieving data...";
+  try {
+    console.log(`Trying to access document with ID: ${uniqueID}`);
+    const docRef = db.collection("QRData").doc(uniqueID);
+    const docSnap = await docRef.get();
 
-        if (!docSnap.exists) {
-          messageDiv.textContent = "No access data found for this ID.";
-          return;
-        }
-
-        const storedPin = docSnap.data().pin?.trim();
-        const data = docSnap.data();
-
-        if (pinInput === storedPin) {
-          messageDiv.textContent = `Access granted! Data: ${JSON.stringify(data)}`;
-          document.getElementById('pin-section').style.display = 'none';
-        } else {
-          messageDiv.textContent = "Invalid PIN. Try again.";
-        }
-      } catch (error) {
-        console.error("Error accessing document:", error);
-        messageDiv.textContent = "Error retrieving data. Please try again.";
-      }
+    if (!docSnap.exists) {
+      messageDiv.textContent = "No access data found for this ID.";
+      return;
     }
+
+    const storedPin = docSnap.data().pin?.trim();
+    const data = docSnap.data();
+
+    console.log(`Retrieved data: ${JSON.stringify(data)}`);
+
+    if (pinInput === storedPin) {
+      messageDiv.textContent = `Access granted! Data: ${JSON.stringify(data)}`;
+      document.getElementById('pin-section').style.display = 'none';
+    } else {
+      messageDiv.textContent = "Invalid PIN. Try again.";
+    }
+  } catch (error) {
+    console.error("Error accessing document:", error);
+    messageDiv.textContent = `Error retrieving data: ${error.message}`;
+  }
+}
   </script>
 </head>
 
