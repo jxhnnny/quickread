@@ -55,7 +55,7 @@
 
   <script>
     const firebaseConfig = {
-       apiKey: "AIzaSyDST_3g-pgWFdnJ-LWeZQAD9uV9muFKFMU",
+      apiKey: "AIzaSyDST_3g-pgWFdnJ-LWeZQAD9uV9muFKFMU",
       authDomain: "quick-read-6bf52.firebaseapp.com",
       projectId: "quick-read-6bf52",
       storageBucket: "quick-read-6bf52.appspot.com",
@@ -64,8 +64,17 @@
     };
 
     firebase.initializeApp(firebaseConfig);
+    let db;
 
-    const db = firebase.firestore();
+    firebase.firestore().enablePersistence()
+      .then(() => {
+        db = firebase.firestore();
+        console.log("Firebase Firestore initialized and persistence enabled.");
+      })
+      .catch((err) => {
+        console.error("Error initializing Firestore with persistence:", err);
+        db = firebase.firestore();
+      });
 
     function getUniqueID() {
       const params = new URLSearchParams(window.location.search);
@@ -90,6 +99,11 @@
       messageDiv.textContent = "Retrieving data...";
       try {
         console.log(`Trying to access document with ID: ${uniqueID}`);
+        
+        if (!db) {
+          throw new Error("Firestore is not initialized yet.");
+        }
+
         const docRef = db.collection("QRData").doc(uniqueID);
         const docSnap = await docRef.get();
 
