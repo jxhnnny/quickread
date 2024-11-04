@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Quick Read - Secure Access</title>
   
-  <!-- Firebase SDKs -->
   <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-firestore-compat.js"></script>
   
@@ -56,7 +55,6 @@
       font-size: 14px;
       color: #ffdddd;
     }
-    /* Add styles for results list */
     .result-list {
       margin-top: 20px;
       font-size: 16px;
@@ -77,7 +75,6 @@
   </style>
 
   <script>
-    // Firebase configuration
     const firebaseConfig = {
       apiKey: "AIzaSyDST_3g-pgWFdnJ-LWeZQAD9uV9muFKFMU",
       authDomain: "quick-read-6bf52.firebaseapp.com",
@@ -87,10 +84,8 @@
       appId: "1:864661348474:android:abced3db35844df7a55bc3"
     };
 
-    // Initialize Firebase with compatibility mode
     firebase.initializeApp(firebaseConfig);
 
-    // Initialize Firestore and enable offline persistence
     const db = firebase.firestore();
     db.enablePersistence()
       .then(() => {
@@ -102,13 +97,11 @@
         document.getElementById("submit-button").disabled = false;
       });
 
-    // Retrieve the unique ID from the URL
     function getUniqueID() {
       const params = new URLSearchParams(window.location.search);
       return params.get('id');
     }
 
-    // Verify the PIN and display results
     async function verifyPIN() {
       const uniqueID = getUniqueID();
       const pinInput = document.getElementById('pin-input').value.trim();
@@ -140,10 +133,9 @@
         const data = docSnap.data();
 
         if (pinInput === storedPin) {
-          messageDiv.textContent = "";  // Clear message
+          messageDiv.textContent = "";  
           document.getElementById('pin-section').style.display = 'none';
 
-          // Display data as list
           const resultList = document.createElement("ul");
           resultList.className = "result-list";
           for (const key in data) {
