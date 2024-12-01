@@ -133,7 +133,7 @@
     // Verify PIN function
     async function verifyPIN() {
       const uniqueID = getUniqueID();
-      const pinInput = document.getElementById('pin-input').value.trim();
+      const pinInput = document.getElementById('pin-input').value.trim().toLowerCase();
       const messageDiv = document.getElementById('message');
       const resultContainer = document.getElementById('result-container');
 
@@ -165,10 +165,10 @@
         }
 
         const data = docSnap.data();
-        const storedpin = data.Pin?.trim();
+        const storedPin = data.pin?.trim().toLowerCase();
 
         // Debug logging
-        console.log("Stored PIN (from data):", storedpin);
+        console.log("Stored PIN (from data):", storedPin);
         console.log("Entered PIN (trimmed):", pinInput);
 
         // Strict comparison
@@ -179,10 +179,10 @@
           // Create text details
           const resultList = document.createElement("ul");
           resultList.className = "result-list";
-          const excludedKeys = ['ProfileImageUrl', 'Pin'];
+          const excludedKeys = ['profileimageurl', 'pin'];
           
           for (const key in data) {
-            if (!excludedKeys.includes(key)) {
+            if (!excludedKeys.includes(key.toLowerCase())) {
               const listItem = document.createElement("li");
               listItem.textContent = `${key.charAt(0).toUpperCase() + key.slice(1)}: ${data[key]}`;
               resultList.appendChild(listItem);
@@ -195,9 +195,9 @@
           imageGallery.className = "image-gallery";
 
           const imageTypes = [
-            { key: 'ProfileImageUrl', label: 'Selfie' },
-            { key: 'IdCardUrl', label: 'ID Card' },
-            { key: 'DriversLicenseUrl', label: 'Driver\'s License' }
+            { key: 'profileimageurl', label: 'Selfie' },
+            { key: 'idcardurl', label: 'ID Card' },
+            { key: 'driverslicenseurl', label: 'Driver\'s License' }
           ];
 
           imageTypes.forEach(imageType => {
