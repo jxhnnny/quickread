@@ -98,6 +98,7 @@
   </style>
 
   <script>
+    // Initialize Firebase with the configuration
     const firebaseConfig = {
       apiKey: "AIzaSyDST_3g-pgWFdnJ-LWeZQAD9uV9muFKFMU",
       authDomain: "quick-read-6bf52.firebaseapp.com",
@@ -107,9 +108,12 @@
       appId: "1:864661348474:android:abced3db35844df7a55bc3"
     };
 
+    // Initialize Firebase
     firebase.initializeApp(firebaseConfig);
 
     const db = firebase.firestore();
+    
+    // Enable persistence 
     db.enablePersistence()
       .then(() => {
         console.log("Firestore initialized with persistence.");
@@ -120,17 +124,23 @@
         document.getElementById("submit-button").disabled = false;
       });
 
+    // Get unique ID from URL parameters
     function getUniqueID() {
       const params = new URLSearchParams(window.location.search);
       return params.get('id');
     }
 
+    // Verify PIN function
     async function verifyPIN() {
       const uniqueID = getUniqueID();
       const pinInput = document.getElementById('pin-input').value.trim();
       const messageDiv = document.getElementById('message');
       const resultContainer = document.getElementById('result-container');
 
+      // Clear previous results
+      resultContainer.innerHTML = '';
+
+      // Validate input
       if (!uniqueID) {
         messageDiv.textContent = "Unique ID is missing in the URL.";
         return;
@@ -142,6 +152,7 @@
       }
 
       messageDiv.textContent = "Retrieving data...";
+      
       try {
         console.log(`Trying to access document with ID: ${uniqueID}`);
         
@@ -153,11 +164,14 @@
           return;
         }
 
-        const storedPin = docSnap.data().Pin?.trim();
         const data = docSnap.data();
-    console.log("Stored PIN:", storedPin);
-    console.log("Entered PIN:", pinInput);
-        
+        const storedPin = data.Pin?.trim();
+
+        // Debug logging
+        console.log("Stored PIN (from data):", storedPin);
+        console.log("Entered PIN (trimmed):", pinInput);
+
+        // Strict comparison
         if (pinInput === storedPin) {
           messageDiv.textContent = "";  
           document.getElementById('pin-section').style.display = 'none';
@@ -166,6 +180,7 @@
           const resultList = document.createElement("ul");
           resultList.className = "result-list";
           const excludedKeys = ['ProfileImageUrl', 'Pin'];
+          
           for (const key in data) {
             if (!excludedKeys.includes(key)) {
               const listItem = document.createElement("li");
