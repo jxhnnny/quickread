@@ -5,8 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Quick Read - Secure Access</title>
   
-  <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-firestore.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-firestore-compat.js"></script>
   
   <style>
     body {
@@ -21,10 +21,13 @@
     }
     .container {
       text-align: center;
-      max-width: 300px;
+      max-width: 500px;
+      width: 100%;
+      padding: 20px;
     }
     .qr-code {
       width: 100%;
+      max-width: 300px;
       height: auto;
       margin-bottom: 20px;
     }
@@ -43,6 +46,10 @@
       font-size: 16px;
       cursor: pointer;
     }
+    button:disabled {
+      background-color: #6c757d;
+      cursor: not-allowed;
+    }
     button:hover {
       background-color: #218838;
     }
@@ -51,9 +58,47 @@
       font-size: 14px;
       color: #ffdddd;
     }
+    .result-list {
+      margin-top: 20px;
+      font-size: 16px;
+      color: #ffffff;
+      text-align: left;
+      padding: 10px;
+      background-color: #333;
+      border-radius: 8px;
+    }
+    .result-list li {
+      margin: 5px 0;
+      padding: 5px;
+      border-bottom: 1px solid #555;
+    }
+    .result-list li:last-child {
+      border-bottom: none;
+    }
+    .image-gallery {
+      display: flex;
+      justify-content: space-around;
+      margin-top: 20px;
+    }
+    .image-container {
+      width: 30%;
+      max-width: 200px;
+    }
+    .image-container img {
+      width: 100%;
+      height: auto;
+      border-radius: 8px;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }
+    .image-label {
+      margin-top: 10px;
+      font-size: 14px;
+      color: #ccc;
+    }
   </style>
 
   <script>
+    // Initialize Firebase with the configuration
     const firebaseConfig = {
       apiKey: "AIzaSyDST_3g-pgWFdnJ-LWeZQAD9uV9muFKFMU",
       authDomain: "quick-read-6bf52.firebaseapp.com",
@@ -63,19 +108,39 @@
       appId: "1:864661348474:android:abced3db35844df7a55bc3"
     };
 
-    const app = firebase.initializeApp(firebaseConfig);
-    const db = firebase.firestore(app);
+    // Initialize Firebase
+    firebase.initializeApp(firebaseConfig);
 
+    const db = firebase.firestore();
+    
+    // Enable persistence 
+    db.enablePersistence()
+      .then(() => {
+        console.log("Firestore initialized with persistence.");
+        document.getElementById("submit-button").disabled = false;
+      })
+      .catch((err) => {
+        console.error("Persistence failed:", err);
+        document.getElementById("submit-button").disabled = false;
+      });
+
+    // Get unique ID from URL parameters
     function getUniqueID() {
-      const urlParams = new URLSearchParams(window.location.search);
-      return urlParams.get('id');
+      const params = new URLSearchParams(window.location.search);
+      return params.get('id');
     }
 
+    // Verify PIN function
     async function verifyPIN() {
       const uniqueID = getUniqueID();
       const pinInput = document.getElementById('pin-input').value.trim();
       const messageDiv = document.getElementById('message');
+      const resultContainer = document.getElementById('result-container');
 
+      // Clear previous results
+      resultContainer.innerHTML = '';
+
+      // Validate input
       if (!uniqueID) {
         messageDiv.textContent = "Unique ID is missing in the URL.";
         return;
@@ -87,7 +152,10 @@
       }
 
       messageDiv.textContent = "Retrieving data...";
+      
       try {
+        console.log(`Trying to access document with ID: ${uniqueID}`);
+        
         const docRef = db.collection("QRData").doc(uniqueID);
         const docSnap = await docRef.get();
 
@@ -96,18 +164,70 @@
           return;
         }
 
-        const storedPin = docSnap.data().pin?.trim();
         const data = docSnap.data();
+        const storedPin = data.Pin?.trim();
 
+        // Debug logging
+        console.log("Stored PIN (from data):", storedPin);
+        console.log("Entered PIN (trimmed):", pinInput);
+
+        // Strict comparison
         if (pinInput === storedPin) {
-          messageDiv.textContent = `Access granted! Data: ${JSON.stringify(data)}`;
+          messageDiv.textContent = "";  
           document.getElementById('pin-section').style.display = 'none';
+
+          // Create text details
+          const resultList = document.createElement("ul");
+          resultList.className = "result-list";
+          const excludedKeys = ['ProfileImageUrl', 'Pin'];
+          
+          for (const key in data) {
+            if (!excludedKeys.includes(key)) {
+              const listItem = document.createElement("li");
+              listItem.textContent = `${key.charAt(0).toUpperCase() + key.slice(1)}: ${data[key]}`;
+              resultList.appendChild(listItem);
+            }
+          }
+          resultContainer.appendChild(resultList);
+
+          // Create image gallery
+          const imageGallery = document.createElement("div");
+          imageGallery.className = "image-gallery";
+
+          const imageTypes = [
+            { key: 'ProfileImageUrl', label: 'Selfie' },
+            { key: 'IdCardUrl', label: 'ID Card' },
+            { key: 'DriversLicenseUrl', label: 'Driver\'s License' }
+          ];
+
+          imageTypes.forEach(imageType => {
+            const imageUrl = data[imageType.key];
+            if (imageUrl) {
+              const imageContainer = document.createElement("div");
+              imageContainer.className = "image-container";
+
+              const image = document.createElement("img");
+              image.src = imageUrl;
+              image.alt = imageType.label;
+
+              const label = document.createElement("div");
+              label.className = "image-label";
+              label.textContent = imageType.label;
+
+              imageContainer.appendChild(image);
+              imageContainer.appendChild(label);
+              imageGallery.appendChild(imageContainer);
+            }
+          });
+
+          resultContainer.appendChild(imageGallery);
+
         } else {
           messageDiv.textContent = "Invalid PIN. Try again.";
         }
       } catch (error) {
         console.error("Error accessing document:", error);
-        messageDiv.textContent = "Error retrieving data. Please try again.";
+        messageDiv.textContent = `Error retrieving data: ${error.message}`;
       }
     }
   </script>
@@ -120,9 +240,10 @@
     <div id="pin-section">
       <label>Enter PIN to Access Data</label>
       <input type="text" id="pin-input" placeholder="Enter PIN" maxlength="6">
-      <button onclick="verifyPIN()">Submit</button>
+      <button id="submit-button" onclick="verifyPIN()" disabled>Submit</button>
     </div>
     <div id="message" class="message"></div>
+    <div id="result-container"></div>
   </div>
 </body>
 </html>
