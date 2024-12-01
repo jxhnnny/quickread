@@ -159,11 +159,7 @@
       const pinInput = document.getElementById('pin-input').value.trim().toLowerCase();
       const messageDiv = document.getElementById('message');
       const resultContainer = document.getElementById('result-container');
-const submitButton = document.getElementById('submit-button');
-  submitButton.disabled = true;
-  submitButton.textContent = 'Loading...';
-      submitButton.disabled = false;
-  submitButton.textContent = 'Submit';
+
       // Clear previous results
       resultContainer.innerHTML = '';
 
@@ -260,22 +256,7 @@ resultContainer.appendChild(imageGallery);
         messageDiv.textContent = `Error retrieving data: ${error.message}`;
       }
     }
-    const excludedKeys = ['profileimageurl', 'pin'];
 
-for (const key in data) {
-  if (!excludedKeys.includes(key.toLowerCase())) {
-    const listItem = document.createElement("li");
-
-    // Check if the value is a URL
-    if (data[key].startsWith("http")) {
-      listItem.textContent = `${key.charAt(0).toUpperCase() + key.slice(1)}: [URL Hidden]`;
-    } else {
-      listItem.textContent = `${key.charAt(0).toUpperCase() + key.slice(1)}: ${data[key]}`;
-    }
-
-    resultList.appendChild(listItem);
-  }
-}
   </script>
 </head>
 
