@@ -163,9 +163,8 @@
           messageDiv.textContent = "No access data found for this ID.";
           return;
         }
-
-        const data = docSnap.data();
         const storedPin = data.Pin?.trim();
+        const data = docSnap.data();
 
         // Debug logging
         console.log("Stored PIN (from data):", storedPin);
@@ -180,7 +179,12 @@
           const resultList = document.createElement("ul");
           resultList.className = "result-list";
           const excludedKeys = ['ProfileImageUrl', 'Pin'];
-          
+           messageDiv.textContent = `Access granted! Data: ${JSON.stringify(data)}`;
+          document.getElementById('pin-section').style.display = 'none';
+        } else {
+          messageDiv.textContent = "Invalid PIN. Try again.";
+        }
+      
           for (const key in data) {
             if (!excludedKeys.includes(key)) {
               const listItem = document.createElement("li");
