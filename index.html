@@ -155,7 +155,9 @@
 
         const storedPin = docSnap.data().Pin?.trim();
         const data = docSnap.data();
-
+    console.log("Stored PIN:", storedPin);
+    console.log("Entered PIN:", pinInput);
+        
         if (pinInput === storedPin) {
           messageDiv.textContent = "";  
           document.getElementById('pin-section').style.display = 'none';
