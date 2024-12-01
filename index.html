@@ -95,6 +95,29 @@
       font-size: 14px;
       color: #ccc;
     }
+    .image-gallery {
+  display: flex;
+  justify-content: space-around;
+  margin-top: 20px;
+}
+
+.image-container {
+  width: 30%;
+  max-width: 200px;
+}
+
+.image-container img {
+  width: 100%;
+  height: auto;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+
+.image-label {
+  margin-top: 10px;
+  font-size: 14px;
+  color: #ccc;
+}
   </style>
 
   <script>
@@ -190,37 +213,37 @@
           }
           resultContainer.appendChild(resultList);
 
-          // Create image gallery
-          const imageGallery = document.createElement("div");
-          imageGallery.className = "image-gallery";
+       // Create image gallery
+const imageGallery = document.createElement("div");
+imageGallery.className = "image-gallery";
 
-          const imageTypes = [
-            { key: 'profileimageurl', label: 'Selfie' },
-            { key: 'idcardurl', label: 'ID Card' },
-            { key: 'driverslicenseurl', label: 'Driver\'s License' }
-          ];
+const imageTypes = [
+  { key: 'profileimageurl', label: 'Selfie' },
+  { key: 'idcardurl', label: 'ID Card' },
+  { key: 'driverslicenseurl', label: 'Driver\'s License' }
+];
 
-          imageTypes.forEach(imageType => {
-            const imageUrl = data[imageType.key];
-            if (imageUrl) {
-              const imageContainer = document.createElement("div");
-              imageContainer.className = "image-container";
+imageTypes.forEach(imageType => {
+  const imageUrl = data[imageType.key];
+  if (imageUrl) {
+    const imageContainer = document.createElement("div");
+    imageContainer.className = "image-container";
 
-              const image = document.createElement("img");
-              image.src = imageUrl;
-              image.alt = imageType.label;
+    const image = document.createElement("img");
+    image.src = imageUrl;
+    image.alt = imageType.label;
 
-              const label = document.createElement("div");
-              label.className = "image-label";
-              label.textContent = imageType.label;
+    const label = document.createElement("div");
+    label.className = "image-label";
+    label.textContent = imageType.label;
 
-              imageContainer.appendChild(image);
-              imageContainer.appendChild(label);
-              imageGallery.appendChild(imageContainer);
-            }
-          });
+    imageContainer.appendChild(image);
+    imageContainer.appendChild(label);
+    imageGallery.appendChild(imageContainer);
+  }
+});
 
-          resultContainer.appendChild(imageGallery);
+resultContainer.appendChild(imageGallery);
 
         } else {
           messageDiv.textContent = "Invalid PIN. Try again.";
