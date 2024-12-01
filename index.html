@@ -95,6 +95,29 @@
       font-size: 14px;
       color: #ccc;
     }
+    .image-gallery {
+  display: flex;
+  justify-content: space-around;
+  margin-top: 20px;
+}
+
+.image-container {
+  width: 30%;
+  max-width: 200px;
+}
+
+.image-container img {
+  width: 100%;
+  height: auto;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+
+.image-label {
+  margin-top: 10px;
+  font-size: 14px;
+  color: #ccc;
+}
   </style>
 
   <script>
@@ -167,14 +190,19 @@
         const data = docSnap.data();
         const storedPin = data.pin?.trim().toLowerCase();
 
+        // Debug logging
+        console.log("Stored PIN (from data):", storedPin);
+        console.log("Entered PIN (trimmed):", pinInput);
+
+        // Strict comparison
         if (pinInput === storedPin) {
           messageDiv.textContent = "";  
           document.getElementById('pin-section').style.display = 'none';
 
-          // Create text details - exclude URL fields from text display
+          // Create text details
           const resultList = document.createElement("ul");
           resultList.className = "result-list";
-          const excludedKeys = ['profileimageurl', 'pin', 'driverslicenseurl', 'idcardurl'];
+          const excludedKeys = ['profileimageurl', 'pin'];
           
           for (const key in data) {
             if (!excludedKeys.includes(key.toLowerCase())) {
@@ -185,37 +213,40 @@
           }
           resultContainer.appendChild(resultList);
 
-          // Create image gallery - show all images
-          const imageGallery = document.createElement("div");
-          imageGallery.className = "image-gallery";
+// Create image gallery
+const imageGallery = document.createElement("div");
+imageGallery.className = "image-gallery";
 
-          const imageTypes = [
-            { key: 'ProfileImageUrl', label: 'Selfie' },
-            { key: 'IdCardUrl', label: 'ID Card' },
-            { key: 'DriversLicenseUrl', label: 'Driver\'s License' }
-          ];
+const imageTypes = [
+  { key: 'ProfileImageUrl', label: 'Selfie' },
+  { key: 'IdCardUrl', label: 'ID Card' },
+  { key: 'DriversLicenseUrl', label: 'Driver\'s License' }
+];
 
-          imageTypes.forEach(imageType => {
-            const imageUrl = data[imageType.key];
-            if (imageUrl) {
-              const imageContainer = document.createElement("div");
-              imageContainer.className = "image-container";
+imageTypes.forEach(imageType => {
+  const imageUrl = data[imageType.key];
+  if (imageUrl) {
+    const imageContainer = document.createElement("div");
+    imageContainer.className = "image-container";
 
-              const image = document.createElement("img");
-              image.src = imageUrl;
-              image.alt = imageType.label;
+    const image = document.createElement("img");
+    image.src = imageUrl;
+    image.alt = imageType.label;
 
-              const label = document.createElement("div");
-              label.className = "image-label";
-              label.textContent = imageType.label;
+    const label = document.createElement("div");
+    label.className = "image-label";
+    label.textContent = imageType.label;
 
-              imageContainer.appendChild(image);
-              imageContainer.appendChild(label);
-              imageGallery.appendChild(imageContainer);
-            }
-          });
+    imageContainer.appendChild(image);
+    imageContainer.appendChild(label);
+    imageGallery.appendChild(imageContainer);
+  }
+});
 
-          resultContainer.appendChild(imageGallery);
+resultContainer.appendChild(imageGallery);
+
+
+resultContainer.appendChild(imageGallery);
 
         } else {
           messageDiv.textContent = "Invalid PIN. Try again.";
@@ -225,6 +256,7 @@
         messageDiv.textContent = `Error retrieving data: ${error.message}`;
       }
     }
+
   </script>
 </head>
 
